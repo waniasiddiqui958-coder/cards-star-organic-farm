@@ -1,2 +1,0 @@
-# cards-star-organic-farm
-🙂
