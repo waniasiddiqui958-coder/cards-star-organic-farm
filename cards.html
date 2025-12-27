@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Products Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .product-image {
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <div class="max-w-7xl mx-auto p-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                🎁 Food Products Catalog
+            </h1>
+            <p class="text-gray-600">Premium Quality Agricultural & Food Products</p>
+            <p class="text-sm text-gray-500 mt-2">Total Products: <span id="totalProducts">50</span></p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-8 max-w-md mx-auto">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search products..."
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be inserted here by JavaScript -->
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="text-center py-12 hidden">
+            <p class="text-gray-500 text-lg">No products found matching your search.</p>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            // Wheat Flour (3 cards)
+            { id: 1, name: "Premium Wheat Flour", category: "Wheat Flour", image: "https://i.pinimg.com/736x/2a/88/f6/2a88f6d34ce200fa237151615ca458bb.jpg", desc: "Fine quality all-purpose flour" },
+            { id: 2, name: "Whole Wheat Flour", category: "Wheat Flour", image: "https://i.pinimg.com/1200x/57/c0/93/57c0933f86ac06056e83ea6dff8244ff.jpg", desc: "100% whole grain wheat flour" },
+            { id: 3, name: "Organic Wheat Flour", category: "Wheat Flour", image: "https://i.pinimg.com/736x/b2/70/03/b27003d11d0e65cfffb86b324809a29a.jpg", desc: "Certified organic wheat flour" },
+            
+            // Basmati Rice (3 cards)
+            { id: 4, name: "Royal Basmati Rice", category: "Basmati Rice", image: "https://i.pinimg.com/736x/82/8a/89/828a8955b13e568f76a596a7719a305b.jpg", desc: "Premium aged basmati" },
+            { id: 5, name: "Golden Basmati Rice", category: "Basmati Rice", image: "https://i.pinimg.com/1200x/69/c0/b3/69c0b3164e6c6b85de4932c8e5d9f74e.jpg", desc: "Extra long grain basmati" },
+            { id: 6, name: "Organic Basmati Rice", category: "Basmati Rice", image: "https://i.pinimg.com/736x/d7/52/ed/d752edbc52161d74459852adf5059d1e.jpg", desc: "Certified organic basmati" },
+            
+            // Rice Flour (2 cards)
+            { id: 7, name: "Fine Rice Flour", category: "Rice Flour", image: "https://i.pinimg.com/1200x/76/cd/9e/76cd9ef60d043f5f43e57609630c6e09.jpg", desc: "Gluten-free rice flour" },
+            { id: 8, name: "Brown Rice Flour", category: "Rice Flour", image: "https://i.pinimg.com/1200x/8f/3a/26/8f3a262f7f4479f8a4b84bc949ebc0d8.jpg", desc: "Whole grain rice flour" },
+            
+            // Fruit Pulps - Mango (3 cards)
+            { id: 9, name: "Alphonso Mango Pulp", category: "Mango Pulp", image: "https://i.pinimg.com/1200x/56/5b/5e/565b5e24db4f9c6dd91ccf12ce594452.jpg", desc: "Premium mango variety" },
+            { id: 10, name: "Kesar Mango Pulp", category: "Mango Pulp", image: "https://i.pinimg.com/736x/e6/29/07/e629078242806fc6b3d052c44380fca2.jpg", desc: "Sweet Kesar mangoes" },
+            { id: 11, name: "Organic Mango Pulp", category: "Mango Pulp", image: "https://i.pinimg.com/1200x/b0/f0/1d/b0f01dce2e56bbffcda66c92fa500857.jpg", desc: "100% natural mango pulp" },
+            
+            // Peach Pulp (2 cards)
+            { id: 12, name: "Fresh Peach Pulp", category: "Peach Pulp", image: "https://i.pinimg.com/1200x/5f/19/b3/5f19b3565daae4d0c06adc1de9767b7d.jpg", desc: "Sweet ripe peach pulp" },
+            { id: 13, name: "Organic Peach Pulp", category: "Peach Pulp", image: "https://i.pinimg.com/1200x/77/d5/d1/77d5d1ce58a46568d43c89233da65281.jpg", desc: "Natural peach concentrate" },
+            
+            // Pineapple Pulp (2 cards)
+            { id: 14, name: "Tropical Pineapple Pulp", category: "Pineapple Pulp", image: "https://i.pinimg.com/736x/62/49/49/624949e24af7869616086f44e86f7d50.jpg", desc: "Fresh pineapple pulp" },
+            { id: 15, name: "Sweet Pineapple Pulp", category: "Pineapple Pulp", image: "https://i.pinimg.com/736x/35/f5/38/35f53835b1fbddd58f1f429304517b66.jpg", desc: "Premium pineapple blend" },
+            
+            // Kiwi Pulp (2 cards)
+            { id: 16, name: "Green Kiwi Pulp", category: "Kiwi Pulp", image: "https://i.pinimg.com/736x/2c/ac/fc/2cacfcf22cde1c5dd7b76541931b1916.jpg", desc: "Rich in Vitamin C" },
+            { id: 17, name: "Kiwi Fruit Pulp", category: "Kiwi Pulp", image: "https://i.pinimg.com/736x/cf/46/92/cf4692b19ec60a46c9ede8127907d02a.jpg", desc: "Tangy kiwi concentrate" },
+            
+            // Banana Pulp (2 cards)
+            { id: 18, name: "Ripe Banana Pulp", category: "Banana Pulp", image: "https://i.pinimg.com/1200x/f0/8b/31/f08b31916bc0cf8a96a5a543dacfe7df.jpg", desc: "Natural banana pulp" },
+            { id: 19, name: "Organic Banana Pulp", category: "Banana Pulp", image: "https://i.pinimg.com/736x/e9/c2/01/e9c201de632dbd1e237d70fcc1b50814.jpg", desc: "Certified organic bananas" },
+            
+            // Dragon Fruit Pulp (2 cards)
+            { id: 20, name: "Pink Dragon Fruit Pulp", category: "Dragon Fruit Pulp", image: "https://i.pinimg.com/1200x/a8/57/5f/a8575f13bbe6aba66c0e4aebb8a8387d.jpg", desc: "Exotic dragon fruit" },
+            { id: 21, name: "White Dragon Fruit Pulp", category: "Dragon Fruit Pulp", image: "https://i.pinimg.com/736x/6e/bc/96/6ebc96308b30c28033f9b4dc6e8533c1.jpg", desc: "Mild and sweet pulp" },
+            
+            // Apple Pulp (2 cards)
+            { id: 22, name: "Fresh Apple Pulp", category: "Apple Pulp", image: "https://i.pinimg.com/736x/bc/76/cc/bc76cc31d0377ef14b37c4994ad7dd78.jpg", desc: "Crisp apple concentrate" },
+            { id: 23, name: "Organic Apple Pulp", category: "Apple Pulp", image: "https://i.pinimg.com/736x/60/ce/cf/60cecfdd94a3f2626f98b06e2bd7024c.jpg", desc: "Pure apple pulp" },
+            
+            // Orange Pulp (2 cards)
+            { id: 24, name: "Fresh Orange Pulp", category: "Orange Pulp", image: "https://i.pinimg.com/736x/07/3f/21/073f21f8f7e2638ab9fd098643258558.jpg", desc: "Vitamin C rich pulp" },
+            { id: 25, name: "Sweet Orange Pulp", category: "Orange Pulp", image: "https://i.pinimg.com/1200x/3c/c3/ea/3cc3eab34bf592608666ba5e39b3af8d.jpg", desc: "Natural orange juice pulp" },
+            
+            // Cooking Oils (3 cards)
+            { id: 26, name: "Sunflower Cooking Oil", category: "Cooking Oils", image: "https://i.pinimg.com/736x/02/bf/75/02bf7581405e62ed66cb962b154b98e8.jpg", desc: "Light and healthy oil" },
+            { id: 27, name: "Vegetable Cooking Oil", category: "Cooking Oils", image: "https://i.pinimg.com/1200x/90/c6/be/90c6be489dd9b03968cf63d7046feb8f.jpg", desc: "All-purpose cooking oil" },
+            { id: 28, name: "Canola Cooking Oil", category: "Cooking Oils", image: "https://i.pinimg.com/1200x/48/69/38/48693890f5ff1cd1a33528f53ab91191.jpg", desc: "Low saturated fat oil" },
+            
+            // Edible Oils (3 cards)
+            { id: 29, name: "Extra Virgin Olive Oil", category: "Edible Oils", image: "https://i.pinimg.com/736x/6d/1d/1f/6d1d1f63a1ef660ea2d42cd9ae20452f.jpg", desc: "Premium olive oil" },
+            { id: 30, name: "Coconut Oil", category: "Edible Oils", image: "https://i.pinimg.com/736x/ca/e5/5f/cae55f6d2ea65d1be303701d5414673e.jpg", desc: "Pure coconut oil" },
+            { id: 31, name: "Mustard Oil", category: "Edible Oils", image: "https://i.pinimg.com/736x/b3/29/47/b32947b9326f27ed156129ec635c0998.jpg", desc: "Traditional mustard oil" },
+            
+            // Spices (4 cards)
+            { id: 32, name: "Turmeric Powder", category: "Spices", image: "https://i.pinimg.com/736x/1f/8c/5f/1f8c5f160e76fd25cc37ff52e5b2adb7.jpg", desc: "Pure ground turmeric" },
+            { id: 33, name: "Red Chili Powder", category: "Spices", image: "https://i.pinimg.com/1200x/80/e5/c3/80e5c3abc1841c7e348c7f8cfdbc41f7.jpg", desc: "Hot and spicy powder" },
+            { id: 34, name: "Coriander Powder", category: "Spices", image: "https://i.pinimg.com/1200x/64/70/21/64702155ec10fef1da8df90bd2dcde17.jpg", desc: "Aromatic coriander" },
+            { id: 35, name: "Cumin Seeds", category: "Spices", image: "https://i.pinimg.com/1200x/e5/19/55/e51955240b773def085f69dfb2eb050c.jpg", desc: "Whole cumin seeds" },
+            
+            // Cereals (3 cards)
+            { id: 36, name: "Oats Porridge", category: "Cereals", image: "https://i.pinimg.com/1200x/d3/16/bb/d316bb2a61f568154ca4819bd20eb094.jpg", desc: "Instant oats cereal" },
+            { id: 37, name: "Corn Flakes", category: "Cereals", image: "https://i.pinimg.com/736x/e1/bf/4c/e1bf4ccac8b6417911fb63713ea3eea9.jpg", desc: "Crispy corn cereal" },
+            { id: 38, name: "Multi-Grain Porridge", category: "Cereals", image: "https://i.pinimg.com/736x/d4/a4/ad/d4a4adb6913e5662fe77dc0e48f8b203.jpg", desc: "Healthy grain mix" },
+            
+            // Grains (3 cards)
+            { id: 39, name: "Brown Rice", category: "Grains", image: "https://i.pinimg.com/1200x/fd/83/6c/fd836c9b3870755aaf68113ab4870864.jpg", desc: "Whole grain brown rice" },
+            { id: 40, name: "Quinoa", category: "Grains", image: "https://i.pinimg.com/1200x/98/01/60/9801606fcd10ac6bb2dc419cd43f236c.jpg", desc: "Protein-rich quinoa" },
+            { id: 41, name: "Millet", category: "Grains", image: "https://i.pinimg.com/736x/2c/b1/f4/2cb1f4f3cbbd7d6e3b0d6d2888c25151.jpg", desc: "Ancient grain millet" },
+            
+            // Pulses (3 cards)
+            { id: 42, name: "Red Lentils", category: "Pulses", image: "https://i.pinimg.com/1200x/e0/75/af/e075af81c597b646d9d9de27509f03c6.jpg", desc: "Quick cooking lentils" },
+            { id: 43, name: "Chickpeas", category: "Pulses", image: "https://i.pinimg.com/736x/d1/01/f7/d101f78f8e010558bea893367ba0cd16.jpg", desc: "Protein-rich chickpeas" },
+            { id: 44, name: "Yellow Split Peas", category: "Pulses", image: "https://i.pinimg.com/1200x/8a/6f/6b/8a6f6b0d1ac576b62c605df4176031fe.jpg", desc: "Traditional split peas" },
+            
+            // Agro Products (6 cards)
+            { id: 45, name: "Organic Honey", category: "Agro Products", image: "https://i.pinimg.com/1200x/0f/0f/66/0f0f664c41d0bfed003fc326becf0c70.jpg", desc: "Pure natural honey" },
+            { id: 46, name: "Jaggery", category: "Agro Products", image: "https://i.pinimg.com/736x/52/48/b0/5248b0c324777bbe6a1987a6e2429d8b.jpg", desc: "Traditional jaggery" },
+            { id: 47, name: "Tamarind", category: "Agro Products", image: "https://i.pinimg.com/736x/87/73/d3/8773d3de6574068d4876fd54f09c5a32.jpg", desc: "Tangy tamarind paste" },
+            { id: 48, name: "Dry Fruits Mix", category: "Agro Products", image: "https://images.pexels.com/photos/10111853/pexels-photo-10111853.jpeg", desc: "Premium dry fruits" },
+            { id: 49, name: "Seeds Mix", category: "Agro Products", image: "https://plus.unsplash.com/premium_photo-1725878607601-db35b20463e8?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", desc: "Healthy seeds blend" },
+            { id: 50, name: "Natural Herbs", category: "Agro Products", image: "https://images.unsplash.com/photo-1744997343611-a352a418c0a5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fE5hdHVyYWwlMjBIZXJicyUyMEZyZXNoJTIwZHJpZWQlMjBoZXJic3xlbnwwfHwwfHx8MA%3D%3D", desc: "Fresh dried herbs" },
+        
+            // Leafy Vegetables (5 cards)
+            { id: 51, name: "Fresh Spinach", category: "Leafy Vegetables", image: "https://i.pinimg.com/736x/09/2b/28/092b28de2906261662f0a9d9e294f452.jpg", desc: "Nutrient-rich green spinach" },
+            { id: 52, name: "Crispy Lettuce", category: "Leafy Vegetables", image: "https://i.pinimg.com/1200x/70/9b/03/709b03b617718069fa8d0c604d2aa1fa.jpg", desc: "Fresh iceberg lettuce" },
+            { id: 53, name: "Green Kale", category: "Leafy Vegetables", image: "https://i.pinimg.com/1200x/63/f1/c3/63f1c30df9040536ddf43d47a06f50b4.jpg", desc: "Superfood kale leaves" },
+            { id: 54, name: "Swiss Chard", category: "Leafy Vegetables", image: "https://i.pinimg.com/1200x/9d/5d/98/9d5d98d5311f5097cf1a3d0ab9919867.jpg", desc: "Colorful chard stalks" },
+            { id: 55, name: "Mustard Greens", category: "Leafy Vegetables", image: "https://i.pinimg.com/736x/00/08/c3/0008c30a89d5e458ecaf8d9c8be70a05.jpg", desc: "Spicy mustard leaves" },
+            
+            // Root Vegetables (5 cards)
+            { id: 56, name: "Organic Carrots", category: "Root Vegetables", image: "https://i.pinimg.com/1200x/11/d0/cc/11d0cc072097d57638dfefeb7021acd7.jpg", desc: "Sweet crunchy carrots" },
+            { id: 57, name: "Fresh Radish", category: "Root Vegetables", image: "https://i.pinimg.com/1200x/a4/22/e0/a422e0f2e11003c80b08a53c89ea4420.jpg", desc: "Crisp white radish" },
+            { id: 58, name: "Red Beets", category: "Root Vegetables", image: "https://i.pinimg.com/1200x/dc/46/f2/dc46f27936c68d443d8fe6f6ae3c1348.jpg", desc: "Earthy sweet beets" },
+            { id: 59, name: "Sweet Potatoes", category: "Root Vegetables", image: "https://i.pinimg.com/1200x/d4/37/97/d43797d35db0abfcc7e7e42b9ad58513.jpg", desc: "Orange sweet potatoes" },
+            { id: 60, name: "White Turnips", category: "Root Vegetables", image: "https://i.pinimg.com/1200x/60/91/44/60914450c2d1c96d52df8fba52d91a59.jpg", desc: "Fresh garden turnips" },
+            
+            // Fruiting Vegetables (5 cards)
+            { id: 61, name: "Ripe Tomatoes", category: "Fruiting Vegetables", image: "https://i.pinimg.com/736x/97/49/a0/9749a048f5dcd4843cb52f37fd897ccd.jpg", desc: "Juicy red tomatoes" },
+            { id: 62, name: "Bell Peppers", category: "Fruiting Vegetables", image: "https://i.pinimg.com/736x/c2/a2/1d/c2a21da608c01a6e879f98de2a28db2f.jpg", desc: "Sweet colorful peppers" },
+            { id: 63, name: "Fresh Cucumbers", category: "Fruiting Vegetables", image: "https://i.pinimg.com/736x/db/fe/b1/dbfeb1a557b8f3c75863811a908ddc8d.jpg", desc: "Cool crispy cucumbers" },
+            { id: 64, name: "Green Zucchini", category: "Fruiting Vegetables", image: "https://i.pinimg.com/1200x/6d/ab/72/6dab7216eb813f47025e9dad7d76abb0.jpg", desc: "Tender summer squash" },
+            { id: 65, name: "Fresh Eggplant", category: "Fruiting Vegetables", image: "https://i.pinimg.com/1200x/4b/70/2e/4b702ed0cb0ebbc6ecf22a25f8e5a1fd.jpg", desc: "Purple glossy eggplant" },
+            
+            // Cruciferous Vegetables (5 cards)
+            { id: 66, name: "Green Broccoli", category: "Cruciferous Vegetables", image: "https://i.pinimg.com/736x/98/04/db/9804db304bacb2578aa62efc9fd273b2.jpg", desc: "Fresh broccoli crowns" },
+            { id: 67, name: "White Cauliflower", category: "Cruciferous Vegetables", image: "https://i.pinimg.com/1200x/f9/8b/20/f98b20b4c569ffa264cc1cd5edb25daf.jpg", desc: "Creamy cauliflower heads" },
+            { id: 68, name: "Brussels Sprouts", category: "Cruciferous Vegetables", image: "https://i.pinimg.com/736x/69/93/bd/6993bdec4d5122528fadb4c90052ceff.jpg", desc: "Mini cabbage sprouts" },
+            { id: 69, name: "Green Cabbage", category: "Cruciferous Vegetables", image: "https://i.pinimg.com/736x/be/a9/b4/bea9b42c57a8118342ce0d3eab9273e2.jpg", desc: "Fresh crispy cabbage" },
+            { id: 70, name: "Purple Cabbage", category: "Cruciferous Vegetables", image: "https://i.pinimg.com/1200x/94/23/a4/9423a4c7d370922508fe303a0bdc4304.jpg", desc: "Vibrant red cabbage" },
+            
+            // Allium Vegetables (5 cards)
+            { id: 71, name: "Red Onions", category: "Allium Vegetables", image: "https://i.pinimg.com/1200x/50/0e/e1/500ee19a6b7efedcc0aeef94264481b4.jpg", desc: "Sweet mild red onions" },
+            { id: 72, name: "White Onions", category: "Allium Vegetables", image: "https://i.pinimg.com/1200x/78/74/52/787452c27cadd21ff28a73a28a0be435.jpg", desc: "Sharp white onions" },
+            { id: 73, name: "Fresh Garlic", category: "Allium Vegetables", image: "https://i.pinimg.com/736x/c8/39/88/c839885d02f4f96079a68ddcff1e70af.jpg", desc: "Aromatic garlic bulbs" },
+            { id: 74, name: "Green Leeks", category: "Allium Vegetables", image: "https://i.pinimg.com/736x/ee/3a/76/ee3a760fd515db73a82e3caaccc740ef.jpg", desc: "Mild flavored leeks" },
+            { id: 75, name: "Spring Onions", category: "Allium Vegetables", image: "https://i.pinimg.com/1200x/cb/90/05/cb9005ceaa3ba46697075a3123c47f17.jpg", desc: "Fresh green scallions" },
+            
+            // Legume Vegetables (5 cards)
+            { id: 76, name: "Green Beans", category: "Legume Vegetables", image: "https://i.pinimg.com/736x/26/6c/82/266c82c35ea3e95a62a0ab7a46b55212.jpg", desc: "Tender string beans" },
+            { id: 77, name: "Sugar Snap Peas", category: "Legume Vegetables", image: "https://i.pinimg.com/1200x/9d/16/a4/9d16a4e465efddc40ac76c0596cf1902.jpg", desc: "Sweet crispy peas" },
+            { id: 78, name: "Green Peas", category: "Legume Vegetables", image: "https://i.pinimg.com/1200x/b8/af/28/b8af2811e85f2506c3234768359829d4.jpg", desc: "Fresh garden peas" },
+            { id: 79, name: "Lima Beans", category: "Legume Vegetables", image: "https://i.pinimg.com/1200x/60/48/2e/60482ee1a5e3e1113e1865d5315b1bfc.jpg", desc: "Buttery lima beans" },
+            { id: 80, name: "Edamame", category: "Legume Vegetables", image: "https://i.pinimg.com/1200x/66/ec/fd/66ecfdc3a2136306f5a4f2c149e3ce75.jpg", desc: "Young soybean pods" },
+            
+            // Squash Vegetables (5 cards)
+            { id: 81, name: "Butternut Squash", category: "Squash Vegetables", image: "https://i.pinimg.com/736x/2d/fd/bd/2dfdbde664dfc490516de2f059880755.jpg", desc: "Sweet winter squash" },
+            { id: 82, name: "Pumpkin", category: "Squash Vegetables", image: "https://i.pinimg.com/736x/93/77/fc/9377fcaa0bbbe6ae1f0c544b5563a0fe.jpg", desc: "Orange pie pumpkin" },
+            { id: 83, name: "Acorn Squash", category: "Squash Vegetables", image: "https://i.pinimg.com/1200x/25/6b/28/256b28c7fbdf7add463185a74e029e78.jpg", desc: "Dark green squash" },
+            { id: 84, name: "Yellow Squash", category: "Squash Vegetables", image: "https://i.pinimg.com/736x/2d/ff/8b/2dff8b6b85628764bfefbcf679fd958e.jpg", desc: "Summer yellow squash" },
+            { id: 85, name: "Spaghetti Squash", category: "Squash Vegetables", image: "https://i.pinimg.com/736x/0a/c3/2d/0ac32d2c0c29829e3446d20a18769554.jpg", desc: "Unique strand squash" },
+            
+            // Stem Vegetables (5 cards)
+            { id: 86, name: "Fresh Asparagus", category: "Stem Vegetables", image: "https://i.pinimg.com/736x/ff/f7/c5/fff7c56ea05a4543b26d849e4de02499.jpg", desc: "Green tender asparagus" },
+            { id: 87, name: "Celery Stalks", category: "Stem Vegetables", image: "https://i.pinimg.com/1200x/66/02/3f/66023fa16d4cf6c2959f22bc45d4d9eb.jpg", desc: "Crisp celery sticks" },
+            { id: 88, name: "Fresh Rhubarb", category: "Stem Vegetables", image: "https://i.pinimg.com/1200x/2f/1c/8a/2f1c8a8619ce52f665d0209ae5e7c5bf.jpg", desc: "Tart rhubarb stalks" },
+            { id: 89, name: "Bamboo Shoots", category: "Stem Vegetables", image: "https://i.pinimg.com/1200x/dc/5b/c7/dc5bc74a847c7a2ed5ade040f140577a.jpg", desc: "Asian bamboo shoots" },
+            { id: 90, name: "Kohlrabi", category: "Stem Vegetables", image: "https://i.pinimg.com/1200x/20/f0/2e/20f02ec9a2adf7774f4a5ad7f856a7e6.jpg", desc: "Bulbous stem vegetable" },
+            
+            // Mushroom Vegetables (5 cards)
+            { id: 91, name: "Button Mushrooms", category: "Mushroom Vegetables", image: "https://i.pinimg.com/736x/ac/49/37/ac4937abd104fe27646ee2279ab72a6b.jpg", desc: "Classic white mushrooms" },
+            { id: 92, name: "Shiitake Mushrooms", category: "Mushroom Vegetables", image: "https://i.pinimg.com/736x/e9/6b/aa/e96baaab28d703b980e3931837edca34.jpg", desc: "Umami-rich shiitake" },
+            { id: 93, name: "Oyster Mushrooms", category: "Mushroom Vegetables", image: "https://i.pinimg.com/736x/6f/a8/4a/6fa84ae210cf7c52e58e8ce2510fe456.jpg", desc: "Delicate oyster variety" },
+            { id: 94, name: "Portobello Mushrooms", category: "Mushroom Vegetables", image: "https://i.pinimg.com/1200x/c9/66/4c/c9664c1490d44a87a1cb9cd413f8bba5.jpg", desc: "Large meaty mushrooms" },
+            { id: 95, name: "Enoki Mushrooms", category: "Mushroom Vegetables", image: "https://i.pinimg.com/736x/9a/8a/23/9a8a231f10a205a8d5a1d66377ac07e5.jpg", desc: "Thin white enoki" },
+            
+            // Specialty Vegetables (5 cards)
+            { id: 96, name: "Fresh Ginger", category: "Specialty Vegetables", image: "https://i.pinimg.com/736x/b1/df/30/b1df30c984239d72b391a480f03c05fc.jpg", desc: "Spicy ginger root" },
+            { id: 97, name:   "Fresh Okra", category: "Specialty Vegetables", image: "https://i.pinimg.com/1200x/8c/df/bc/8cdfbc43fb30447a83accca2111f959a.jpg", desc: "Green lady fingers" },
+            { id: 98, name: "Bitter Gourd", category: "Specialty Vegetables", image: "https://i.pinimg.com/1200x/d0/99/71/d09971059686d679d7ea2ff06cbf988d.jpg", desc: "Nutritious bitter melon" },
+            { id: 99, name: "Bottle Gourd", category: "Specialty Vegetables", image: "https://i.pinimg.com/1200x/51/59/ab/5159ab19f683d9eb9e1e3cd9c7774f7c.jpg", desc: "Fresh lauki vegetable" },
+            { id: 100, name: "Ridge Gourd", category: "Specialty Vegetables", image: "https://i.pinimg.com/1200x/04/af/03/04af03b6db20ae06a00f4563bdadd3fb.jpg", desc: "Fibrous ridge gourd" }
+
+        ];
+
+        function createProductCard(product) {
+            return `
+                <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="h-48 overflow-hidden bg-gray-100">
+                        <img
+                            src="${product.image}"
+                            alt="${product.name}"
+                            class="product-image w-full h-full object-cover"
+                            onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'"
+                        />
+                    </div>
+                    <div class="p-4">
+                        <div class="text-xs font-semibold text-green-600 uppercase tracking-wide mb-1">
+                            ${product.category}
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">
+                            ${product.name}
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4">
+                            ${product.desc}
+                        </p>
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProducts(productsToRender) {
+            const productGrid = document.getElementById('productGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (productsToRender.length === 0) {
+                productGrid.innerHTML = '';
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                productGrid.innerHTML = productsToRender.map(product => createProductCard(product)).join('');
+            }
+        }
+
+        function filterProducts(searchTerm) {
+            const filtered = products.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderProducts(filtered);
+        }
+
+        // Initialize
+        document.getElementById('totalProducts').textContent = products.length;
+        renderProducts(products);
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            filterProducts(e.target.value);
+        });
+    </script>
+</body>
+</html>
